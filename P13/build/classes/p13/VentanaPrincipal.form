@@ -671,6 +671,7 @@
             <Component class="javax.swing.JSlider" name="TLinealSlider">
               <Properties>
                 <Property name="maximum" type="int" value="255"/>
+                <Property name="toolTipText" type="java.lang.String" value="Transformaci&#xf3;n Lineal"/>
                 <Property name="value" type="int" value="0"/>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[50, 20]"/>

@@ -12,6 +12,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BandCombineOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.awt.image.ByteLookupTable;
 import java.awt.image.ColorConvertOp;
 import java.awt.image.ColorModel;
@@ -567,6 +568,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jToolBar1.add(rotateSlider);
 
         TLinealSlider.setMaximum(255);
+        TLinealSlider.setToolTipText("Transformación Lineal");
         TLinealSlider.setValue(0);
         TLinealSlider.setPreferredSize(new java.awt.Dimension(50, 20));
         TLinealSlider.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -1395,7 +1397,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     }
                     ByteLookupTable tabla = new ByteLookupTable(0, functionT);
                     LookupOp lop = new LookupOp(tabla, null);
-                    BufferedImage imgdest = lop.filter(img, null);
+                    BufferedImage imgdest = lop.filter(img, img);
                     vi.getLienzo2D().setImg(imgdest);
                     vi.getLienzo2D().repaint();
                 } catch(IllegalArgumentException e){
@@ -1426,7 +1428,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                     
                     ByteLookupTable tabla = new ByteLookupTable(0, lookupTable);
                     LookupOp lop = new LookupOp(tabla, null);
-                    BufferedImage imgdest = lop.filter(img, null);
+                    BufferedImage imgdest = lop.filter(img, img);
                     vi.getLienzo2D().setImg(imgdest);
                     vi.getLienzo2D().repaint();
                } catch(IllegalArgumentException e){
@@ -1774,7 +1776,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void TLinealSliderFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_TLinealSliderFocusGained
         VentanaInterna vi = (VentanaInterna)(escritorio.getSelectedFrame());
         if(vi!=null){
-            this.imgFuente = vi.getLienzo2D().getImg();
+            BufferedImage aux = vi.getLienzo2D().getImg();
+            ColorModel cm = aux.getColorModel();
+            boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+            WritableRaster raster = aux.copyData(null);
+            imgFuente = new BufferedImage(cm, raster, isAlphaPremultiplied, null);
         }
     }//GEN-LAST:event_TLinealSliderFocusGained
 
@@ -1782,20 +1788,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         imgFuente = null;
     }//GEN-LAST:event_TLinealSliderFocusLost
 
-    private int transformPixel(int x, int a, int controlPoint) {
-        if (x < controlPoint) {
-            return (a * x) / controlPoint;
-        } else {
-            return ((255 - a) * (x - controlPoint)) / 127 + a;
-        }
-    }
-    
     private void TLinealSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_TLinealSliderStateChanged
         VentanaInterna vi = (VentanaInterna) (escritorio.getSelectedFrame());
          if (vi != null) {
+             BufferedImage img = vi.getLienzo2D().getImg();
             if(imgFuente!=null){
                 try{
-                    double a = TLinealSlider.getValue(); // Get the slider value (a)
+                    double a = TLinealSlider.getValue(); 
 
                    // int controlPoint = 128; 
 
@@ -1810,9 +1809,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
                     ByteLookupTable tabla = new ByteLookupTable(0, fT);
                     LookupOp lop = new LookupOp(tabla, null);
-                    BufferedImage imgdest = lop.filter(imgFuente, null);
+                    BufferedImage imgdest = lop.filter(imgFuente,img );
         
-                    vi.getLienzo2D().setImg(imgdest);
+                    //vi.getLienzo2D().setImg(imgdest);
                     vi.getLienzo2D().repaint();
                 } catch(IllegalArgumentException e){
                 System.err.println(e.getLocalizedMessage());
